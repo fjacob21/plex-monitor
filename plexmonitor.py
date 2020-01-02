@@ -89,8 +89,8 @@ class Monitor(object):
                 plex_html = False
             if restarting or oomKilled or dead or not plex_html:
                 print("Plex is not working", restarting, oomKilled, dead ,plex_html)
-                logs = get_logs(c)
-                send_email(self._configs.oncall, "Plex server not healty!", logs=logs)
+                # logs = get_logs(c)
+                # send_email(self._configs.oncall, "Plex server not healty!", logs=logs)
             else:
                 print("All is ok")
             time.sleep(1)

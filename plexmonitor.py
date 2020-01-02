@@ -65,6 +65,8 @@ class Monitor(object):
         return logs
 
     def main(self):
+        if self._config.use_local_sock:
+            client = docker.DockerClient(base_url="unix://var/run/docker.sock")
         if self._configs.server:
             docker_service = f"ssh://{self._configs.user}@{self._configs.server}"
             client = docker.DockerClient(base_url=docker_service)

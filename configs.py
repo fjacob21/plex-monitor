@@ -7,6 +7,7 @@ class Configs(object):
         super().__init__()
         self._filename = filename
         self._container = ""
+        self._use_local_sock = False
         self._server = ""
         self._user = ""
         self._email = ""
@@ -19,6 +20,7 @@ class Configs(object):
             configs = json.load(f)
             self._container = configs["container"]
             self._server = configs["server"]
+            self._use_local_sock = configs["use_local_sock"] == "True"
             self._user = configs["user"]
             self._email = configs["email"]
             self._password = configs["password"]
@@ -32,6 +34,10 @@ class Configs(object):
     def server(self):
         return self._server
     
+    @property
+    def use_local_sock(self):
+        return self._use_local_sock
+
     @property
     def user(self):
         return self._user

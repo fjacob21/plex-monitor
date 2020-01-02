@@ -8,6 +8,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import threading
+import time
 from configs import Configs
 
 
@@ -70,26 +71,28 @@ class Monitor(object):
         else:
             client = docker.from_env()
         
-        c = client.containers.get('plex')
-        start = c.attrs["State"]["StartedAt"]
-        running = c.attrs["State"]["Running"]
-        restarting = c.attrs["State"]["Restarting"]
-        oomKilled = c.attrs["State"]["OOMKilled"]
-        dead = c.attrs["State"]["Dead"]
-        pid = c.attrs["State"]["Pid"]
-        restart_count = c.attrs["RestartCount"]
-        plex_html = False
-        try:
-            r = requests.get(f"http://{self._configs.server}:32400/web/index.html")
-            if r.ok:
-                plex_html = True
-        except Exception:
+        while True:
+            c = client.containers.get('plex')
+            start = c.attrs["State"]["StartedAt"]
+            running = c.attrs["State"]["Running"]
+            restarting = c.attrs["State"]["Restarting"]
+            oomKilled = c.attrs["State"]["OOMKilled"]
+            dead = c.attrs["State"]["Dead"]
+            pid = c.attrs["State"]["Pid"]
+            restart_count = c.attrs["RestartCount"]
             plex_html = False
-        if restarting or oomKilled or dead or not plex_html:
-            logs = get_logs(c)
-            send_email(self._configs.oncall, "Plex server not healty!", logs=logs)
-        else:
-            print("All is ok")
+            try:
+                r = requests.get(f"http://{self._configs.server}:32400/web/index.html")
+                if r.ok:
+                    plex_html = True
+            except Exception:
+                plex_html = False
+            if restarting or oomKilled or dead or not plex_html:
+                logs = get_logs(c)
+                send_email(self._configs.oncall, "Plex server not healty!", logs=logs)
+            else:
+                print("All is ok")
+            time.sleep(1)
 
 
 

@@ -11,6 +11,7 @@ import time
 import logging
 from configs import Configs
 
+logging.basicConfig(level=logging.INFO)
 
 class PlexMonitor(object):
 

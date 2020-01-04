@@ -15,41 +15,56 @@ class Configs(object):
         self._oncall = ""
         self.load()
     
-    def load(self):
+    def load(self) -> None:
         with open(self._filename, "rt") as f:
             configs = json.load(f)
             self._container = configs["container"]
             self._server = configs["server"]
-            self._use_local_sock = configs["use_local_sock"] == "True"
             self._user = configs["user"]
+            self._use_local_sock = configs["use_local_sock"] == "True"
+            self._smtp_server = configs["smtp_server"]
+            self._smtp_port = int(configs["smtp_port"])
             self._email = configs["email"]
             self._password = configs["password"]
             self._oncall = configs["oncall"]
+            self._cycle = float(configs["cycle"])
     
     @property
-    def container(self):
+    def container(self) -> str:
         return self._container
 
     @property
-    def server(self):
+    def server(self) -> str:
         return self._server
     
     @property
-    def use_local_sock(self):
-        return self._use_local_sock
-
-    @property
-    def user(self):
+    def user(self) -> str:
         return self._user
     
     @property
-    def email(self):
+    def use_local_sock(self) -> bool:
+        return self._use_local_sock
+
+    @property
+    def smtp_server(self) -> str:
+        return self._smtp_server
+    
+    @property
+    def smtp_port(self) -> port:
+        return self._smtp_port
+    
+    @property
+    def email(self) -> str:
         return self._email
     
     @property
-    def password(self):
+    def password(self) -> str:
         return self._password
     
     @property
-    def oncall(self):
+    def oncall(self) -> str:
         return self._oncall
+    
+    @property
+    def cycle(self) -> float:
+        return self._cycle

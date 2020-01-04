@@ -92,6 +92,7 @@ class PlexMonitor(object):
             or oomKilled
             or dead
         ):
+            logging.error("Container is not healthy", self._pid, self._start, self._restart_count, pid, start, restart_count, restarting, oomKilled, dead)
             self._pid = pid
             self._start = start
             self._restart_count = restart_count
@@ -104,7 +105,10 @@ class PlexMonitor(object):
             r = requests.get(f"http://{self._configs.server}:32400/web/index.html")
             if r.ok:
                 return True
-        except Exception:
+            logging.error("Get not ok", r.status_code)
+            return False
+        except Exception as e:
+            logging.exception("Exception on get", e)
             return False
     
     @property
@@ -117,10 +121,10 @@ class PlexMonitor(object):
             return 1
         while True:
             if self.is_plex_healthy:
+                logging.debug("All is ok")
+            else:
                 logging.error("Plex is not healthy")
                 self.send_oncall_email()
-            else:
-                logging.debug("All is ok")
             time.sleep(self._configs.cycle)
 
 

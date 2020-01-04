@@ -45,15 +45,19 @@ class PlexMonitor(object):
             return False
     
     def get_logs(self):
-        container = self._client.containers.get('plex')
-        log_content = ""
-        for log in container.logs(timestamps=True).decode().strip().split("\n"):
-            log = log.replace("\r", "")
-            m = re.match(r"(\d*-\d*-\d*T\d*:\d*:\d*.\d*\w*) (.*)", log)
-            timestamp = m.groups()[0]
-            msg = m.groups()[1]
-            log_content += f"{timestamp} - {msg}\n" 
-        return log_content
+        try:
+            container = self._client.containers.get('plex')
+            log_content = ""
+            for log in container.logs(timestamps=True).decode().strip().split("\n"):
+                log = log.replace("\r", "")
+                m = re.match(r"(\d*-\d*-\d*T\d*:\d*:\d*.\d*\w*) (.*)", log)
+                timestamp = m.groups()[0]
+                msg = m.groups()[1]
+                log_content += f"{timestamp} - {msg}\n" 
+            return log_content
+        except Exception as e:
+            logging.exception("Cannot get logs", e)
+            return ""
 
     def setup_docker_client(self):
         try:
@@ -72,33 +76,37 @@ class PlexMonitor(object):
 
     @property
     def is_container_healthy(self) -> bool:
-        container = self._client.containers.get('plex')
-        start = container.attrs["State"]["StartedAt"]
-        pid = container.attrs["State"]["Pid"]
-        restart_count = container.attrs["RestartCount"]
-        running = container.attrs["State"]["Running"]
-        restarting = container.attrs["State"]["Restarting"]
-        oomKilled = container.attrs["State"]["OOMKilled"]
-        dead = container.attrs["State"]["Dead"]
-        
-        if self._pid == 0:
-            self._pid = pid
-            self._start = start
-            self._restart_count = restart_count
-        if (
-            self._pid != pid
-            or self._start != start
-            or self._restart_count != restart_count
-            or restarting
-            or oomKilled
-            or dead
-        ):
-            logging.error("Container is not healthy", self._pid, self._start, self._restart_count, pid, start, restart_count, restarting, oomKilled, dead)
-            self._pid = pid
-            self._start = start
-            self._restart_count = restart_count
+        try:
+            container = self._client.containers.get('plex')
+            start = container.attrs["State"]["StartedAt"]
+            pid = container.attrs["State"]["Pid"]
+            restart_count = container.attrs["RestartCount"]
+            running = container.attrs["State"]["Running"]
+            restarting = container.attrs["State"]["Restarting"]
+            oomKilled = container.attrs["State"]["OOMKilled"]
+            dead = container.attrs["State"]["Dead"]
+            
+            if self._pid == 0:
+                self._pid = pid
+                self._start = start
+                self._restart_count = restart_count
+            if (
+                self._pid != pid
+                or self._start != start
+                or self._restart_count != restart_count
+                or restarting
+                or oomKilled
+                or dead
+            ):
+                logging.error("Container is not healthy", self._pid, self._start, self._restart_count, pid, start, restart_count, restarting, oomKilled, dead)
+                self._pid = pid
+                self._start = start
+                self._restart_count = restart_count
+                return False
+            return True
+        except Exception as e:
+            logging.exception("Cannot get container stats", e)
             return False
-        return True
 
     @property
     def is_server_healthy(self) -> bool:

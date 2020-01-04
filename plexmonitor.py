@@ -9,7 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import time
 import logging
-from .configs import Configs
+from configs import Configs
 
 
 class PlexMonitor(object):

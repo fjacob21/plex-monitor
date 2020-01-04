@@ -50,7 +50,7 @@ class Configs(object):
         return self._smtp_server
     
     @property
-    def smtp_port(self) -> port:
+    def smtp_port(self) -> int:
         return self._smtp_port
     
     @property

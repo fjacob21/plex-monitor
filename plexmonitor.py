@@ -20,6 +20,7 @@ class PlexMonitor(object):
         self._pid = 0
         self._start = ""
         self._restart_count = 0
+        self._in_error = False
     
     def send_oncall_email(self) -> None:
         msg = MIMEMultipart()
@@ -122,9 +123,12 @@ class PlexMonitor(object):
         while True:
             if self.is_plex_healthy:
                 logging.debug("All is ok")
+                self._in_error = False
             else:
-                logging.error("Plex is not healthy")
-                self.send_oncall_email()
+                if not self._in_error:
+                    logging.error("Plex is not healthy")
+                    self.send_oncall_email()
+                    self._in_error = True
             time.sleep(self._configs.cycle)
 
 

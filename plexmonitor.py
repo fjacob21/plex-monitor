@@ -130,7 +130,10 @@ class PlexMonitor(object):
             return 1
         while True:
             if self.is_plex_healthy:
-                logging.debug("All is ok")
+                if self._in_error:
+                    logging.info("Returning to healthy")
+                else:
+                    logging.debug("All is ok")
                 self._in_error = False
             else:
                 if not self._in_error:
